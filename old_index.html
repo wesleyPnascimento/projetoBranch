@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard do Projeto</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #f5f7fa;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      display: flex;
+      background: #1f2937;
+      padding: 0 20px;
+    }
+
+    .nav-item {
+      color: #cbd5e1;
+      padding: 15px 20px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .nav-item:hover {
+      background: #374151;
+      color: white;
+    }
+
+    .nav-item.active {
+      background: #2563eb;
+      color: white;
+      border-radius: 5px 5px 0 0;
+    }
+
+    /* CONTEÚDO */
+    .container {
+      padding: 30px;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      /*max-width: 600px;*/
+      text-align: center;
+      background: cadetblue;
+    }
+
+    h1 {
+      margin-top: 0;
+      color: #111827;
+    }
+
+    .item {
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+
+    .label {
+      font-weight: bold;
+      color: #374151;
+    }
+
+    /* esconder abas */
+    .tab {
+      display: none;
+    }
+
+    .tab.active {
+      display: block;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <!-- MENU -->
+
+  <div class="navbar">
+    <div class="nav-item active" onclick="showTab('home', this)">Seja bem-vindo</div>
+    <div class="nav-item" onclick="showTab('details', this)">Detalhes</div>
+  </div>
+
+  <!-- CONTEÚDO -->
+
+  <div class="container">
+
+```
+<!-- HOME -->
+<div id="home" class="tab active">
+  <div class="card">
+    <h1>🚀 Bem-vindo</h1>
+    <p>Este é o dashboard do projeto gerado pelo Jenkins.</p>
+    <p>Aqui você pode visualizar informações básicas do build.</p>
+  </div>
+</div>
+
+<!-- DETALHES -->
+<div id="details" class="tab">
+  <div class="card">
+    <h1>📦 Detalhes do Projeto</h1>
+
+    <div class="item">
+      <span class="label">Repositório:</span>
+      <span id="repo"></span>
+    </div>
+
+    <div class="item">
+      <span class="label">Branch:</span>
+      <span id="branch"></span>
+    </div>
+
+    <div class="item">
+      <span class="label">Commit:</span>
+      <span id="commit"></span>
+    </div>
+
+  </div>
+</div>
+```
+
+  </div>
+
+  <script>
+    function showTab(tabId, element) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+
+      document.getElementById(tabId).classList.add('active');
+      element.classList.add('active');
+    }
+
+    // carregar info.json
+    fetch('info.json')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('repo').textContent = data.repo;
+        document.getElementById('branch').textContent = data.branch;
+        document.getElementById('commit').textContent = data.commit;
+      })
+      .catch(err => console.error(err));
+  </script>
+
+</body>
+</html>
