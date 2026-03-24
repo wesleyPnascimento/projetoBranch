@@ -16,16 +16,16 @@ pipeline {
                 script {
                     switch (env.BRANCH_NAME) {
                         case 'main':
-                            env.REMOTE_HOST = '192.168.1.10'
+                            env.REMOTE_HOST = '192.168.0.30'
                             break
                         case 'develop':
-                            env.REMOTE_HOST = '192.168.1.11'
+                            env.REMOTE_HOST = '192.168.0.30'
                             break
                         case 'staging':
-                            env.REMOTE_HOST = '192.168.1.12'
+                            env.REMOTE_HOST = '192.168.0.30'
                             break
                         case 'demo':
-                            env.REMOTE_HOST = '192.168.1.13'
+                            env.REMOTE_HOST = '192.168.0.30'
                             break
                         default:
                             error("Branch '${env.BRANCH_NAME}' não mapeada para nenhum servidor. Pipeline abortado.")
