@@ -5,7 +5,7 @@ pipeline {
         REPO_NAME    = "projetoBranch"
         REMOTE_USER  = "root"
         REMOTE_DIR   = "/var/www/projetoBranch"
-        SSH_KEY_PATH = "/var/lib/jenkins/.ssh/id_rsa"
+        SSH_KEY_ACCESS = "~/.ssh/id_rsa"
     }
 
     stages {
@@ -67,7 +67,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    def sshOpts = "-i ${env.SSH_KEY_PATH} -o StrictHostKeyChecking=no"
+                    def sshOpts = "-i ${env.SSH_KEY_ACCESS} -o StrictHostKeyChecking=no"
                     def target  = "${env.REMOTE_USER}@${env.REMOTE_HOST}"
 
                     // Garante que o diretório existe no servidor remoto
