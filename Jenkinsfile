@@ -5,7 +5,7 @@ pipeline {
         REPO_NAME    = "projetoBranch"
         REMOTE_USER  = "root"
         REMOTE_DIR   = "/var/www/projetoBranch"
-        SSH_KEY_PATH = "/var/lib/jenkins/.ssh/id_rsa"
+        SSH_KEY_PATH = "~/.ssh/id_rsa"
     }
 
     stages {
