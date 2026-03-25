@@ -1,927 +1,152 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pipeline Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <title>Dashboard do Projeto</title>
+
   <style>
-    :root {
-      --bg: #0a0d14;
-      --surface: #111520;
-      --surface2: #161c2d;
-      --border: #1e2a42;
-      --accent: #3b82f6;
-      --accent2: #06d6a0;
-      --accent3: #f59e0b;
-      --danger: #ef4444;
-      --text: #e2e8f0;
-      --muted: #64748b;
-      --mono: 'JetBrains Mono', monospace;
-      --sans: 'Syne', sans-serif;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      min-height: 100vh;
-      overflow-x: hidden;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #f5f7fa;
     }
 
-    /* ─── GRID BACKGROUND ─── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* ─── TOPBAR ─── */
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
+    /* NAVBAR */
+    .navbar {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 28px;
-      height: 56px;
-      background: rgba(10,13,20,0.92);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
+      background: #1f2937;
+      padding: 0 20px;
     }
 
-    .topbar-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 800;
-      font-size: 15px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
-    .brand-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 8px var(--accent);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.8); }
-    }
-
-    .topbar-nav {
-      display: flex;
-      gap: 2px;
-    }
-
-    .nav-btn {
-      padding: 6px 18px;
-      border: none;
-      background: transparent;
-      color: var(--muted);
-      font-family: var(--sans);
-      font-size: 13px;
-      font-weight: 600;
+    .nav-item {
+      color: #cbd5e1;
+      padding: 15px 20px;
       cursor: pointer;
-      border-radius: 6px;
-      transition: all 0.2s;
-      letter-spacing: 0.03em;
+      transition: 0.3s;
     }
 
-    .nav-btn:hover { color: var(--text); background: var(--surface2); }
-    .nav-btn.active { color: var(--accent); background: rgba(59,130,246,0.12); }
-
-    .topbar-meta {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
+    .nav-item:hover {
+      background: #374151;
+      color: white;
     }
 
-    .status-live {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      color: var(--accent2);
+    .nav-item.active {
+      background: #2563eb;
+      color: white;
+      border-radius: 5px 5px 0 0;
     }
 
-    .status-live::before {
-      content: '';
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--accent2);
-      box-shadow: 0 0 6px var(--accent2);
-      animation: pulse 1.5s infinite;
+    /* CONTEÚDO */
+    .container {
+      padding: 30px;
     }
 
-    /* ─── LAYOUT ─── */
-    .page { display: none; padding: 28px; position: relative; z-index: 1; }
-    .page.active { display: block; animation: fadeIn 0.3s ease; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .page-header {
-      margin-bottom: 24px;
-    }
-
-    .page-title {
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-
-    .page-subtitle {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 4px;
-      font-family: var(--mono);
-    }
-
-    /* ─── CARDS GRID ─── */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      position: relative;
-      overflow: hidden;
-      transition: border-color 0.2s, transform 0.2s;
-    }
-
-    .stat-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-    }
-
-    .stat-card.blue::before { background: var(--accent); }
-    .stat-card.green::before { background: var(--accent2); }
-    .stat-card.yellow::before { background: var(--accent3); }
-    .stat-card.red::before { background: var(--danger); }
-
-    .stat-label {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
-
-    .stat-value {
-      font-size: 32px;
-      font-weight: 800;
-      line-height: 1;
-      letter-spacing: -0.03em;
-    }
-
-    .stat-value.blue { color: var(--accent); }
-    .stat-value.green { color: var(--accent2); }
-    .stat-value.yellow { color: var(--accent3); }
-    .stat-value.red { color: var(--danger); }
-
-    .stat-sub {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 6px;
-      font-family: var(--mono);
-    }
-
-    /* ─── TWO COL ─── */
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
-
-    /* ─── PANEL ─── */
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .panel-title {
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .panel-body { padding: 20px; }
-
-    /* ─── BUILD LIST ─── */
-    .build-list { display: flex; flex-direction: column; gap: 8px; }
-
-    .build-item {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 12px 16px;
-      background: var(--surface2);
-      border-radius: 8px;
-      border: 1px solid transparent;
-      transition: border-color 0.2s;
-      cursor: pointer;
-    }
-
-    .build-item:hover { border-color: var(--border); }
-
-    .build-status {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .build-status.success { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
-    .build-status.failed  { background: var(--danger);  box-shadow: 0 0 6px var(--danger); }
-    .build-status.running { background: var(--accent3); box-shadow: 0 0 6px var(--accent3); animation: pulse 1s infinite; }
-
-    .build-info { flex: 1; min-width: 0; }
-
-    .build-id {
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--accent);
-      font-weight: 600;
-    }
-
-    .build-branch {
-      font-size: 13px;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .build-meta {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    .build-duration {
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--muted);
-      flex-shrink: 0;
-    }
-
-    .badge {
-      font-family: var(--mono);
-      font-size: 10px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .badge.success { background: rgba(6,214,160,0.15); color: var(--accent2); }
-    .badge.failed  { background: rgba(239,68,68,0.15);  color: var(--danger); }
-    .badge.running { background: rgba(245,158,11,0.15); color: var(--accent3); }
-
-    /* ─── PROGRESS BAR ─── */
-    .progress-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-
-    .progress-label { font-size: 13px; font-weight: 600; flex: 1; }
-    .progress-pct { font-family: var(--mono); font-size: 12px; color: var(--muted); width: 36px; text-align: right; }
-
-    .progress-track {
-      flex: 2;
-      height: 6px;
-      background: var(--surface2);
-      border-radius: 99px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      border-radius: 99px;
-      transition: width 1s ease;
-    }
-
-    /* ─── CODE BLOCK ─── */
-    .code-block {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
-      font-family: var(--mono);
-      font-size: 12px;
-      line-height: 1.7;
-      color: #94a3b8;
-      overflow-x: auto;
-    }
-
-    .code-line { display: flex; gap: 16px; }
-    .code-ln { color: var(--border); user-select: none; min-width: 20px; }
-    .kw { color: #818cf8; }
-    .str { color: var(--accent2); }
-    .fn  { color: var(--accent); }
-    .cm  { color: var(--muted); font-style: italic; }
-    .num { color: var(--accent3); }
-
-    /* ─── DETAILS PAGE ─── */
-    .detail-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    @media (max-width: 768px) { .detail-grid { grid-template-columns: 1fr; } }
-
-    .info-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 14px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .info-row:last-child { border-bottom: none; }
-
-    .info-key {
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--muted);
-      min-width: 120px;
-      padding-top: 2px;
-    }
-
-    .info-val {
-      font-family: var(--mono);
-      font-size: 13px;
-      color: var(--text);
-      word-break: break-all;
-    }
-
-    .info-val.accent { color: var(--accent); }
-    .info-val.green  { color: var(--accent2); }
-
-    /* ─── TIMELINE ─── */
-    .timeline { display: flex; flex-direction: column; gap: 0; }
-
-    .tl-item {
-      display: flex;
-      gap: 16px;
-      padding-bottom: 20px;
-      position: relative;
-    }
-
-    .tl-item:last-child { padding-bottom: 0; }
-
-    .tl-left {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 32px;
-      flex-shrink: 0;
-    }
-
-    .tl-dot {
-      width: 12px; height: 12px;
-      border-radius: 50%;
-      border: 2px solid;
-      flex-shrink: 0;
-    }
-
-    .tl-dot.done  { border-color: var(--accent2); background: var(--accent2); }
-    .tl-dot.run   { border-color: var(--accent3); background: transparent; animation: pulse 1s infinite; }
-    .tl-dot.wait  { border-color: var(--border); background: transparent; }
-
-    .tl-line {
-      flex: 1;
-      width: 1px;
-      background: var(--border);
-      margin-top: 4px;
-    }
-
-    .tl-item:last-child .tl-line { display: none; }
-
-    .tl-content { flex: 1; padding-top: 0; }
-    .tl-title { font-size: 14px; font-weight: 700; }
-    .tl-sub { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 3px; }
-
-    /* ─── LOGS PAGE ─── */
-    .log-terminal {
-      background: #060810;
-      border: 1px solid var(--border);
+    .card {
+      background: white;
+      padding: 25px;
       border-radius: 10px;
-      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      /*max-width: 600px;*/
+      text-align: center;
+      background: cadetblue;
     }
 
-    .log-titlebar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
+    h1 {
+      margin-top: 0;
+      color: #111827;
     }
 
-    .win-btn {
-      width: 12px; height: 12px;
-      border-radius: 50%;
+    .item {
+      margin-bottom: 12px;
+      font-size: 16px;
     }
 
-    .win-btn.red    { background: #ff5f57; }
-    .win-btn.yellow { background: #febc2e; }
-    .win-btn.green  { background: #28c840; }
-
-    .log-titlebar-text {
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--muted);
-      margin-left: 8px;
+    .label {
+      font-weight: bold;
+      color: #374151;
     }
 
-    .log-body {
-      padding: 20px;
-      font-family: var(--mono);
-      font-size: 12px;
-      line-height: 1.8;
-      max-height: 420px;
-      overflow-y: auto;
+    /* esconder abas */
+    .tab {
+      display: none;
     }
 
-    .log-line { display: flex; gap: 14px; }
-    .log-ts { color: #2a3a5c; min-width: 80px; }
-    .log-ok  { color: var(--accent2); }
-    .log-err { color: var(--danger); }
-    .log-warn{ color: var(--accent3); }
-    .log-inf { color: #94a3b8; }
-    .log-dim { color: #2a3a5c; }
-
-    /* ─── SCROLLBAR ─── */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
-
-    /* ─── TAG ─── */
-    .tag {
-      display: inline-block;
-      font-family: var(--mono);
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 4px;
-      background: rgba(59,130,246,0.12);
-      color: var(--accent);
-      border: 1px solid rgba(59,130,246,0.2);
+    .tab.active {
+      display: block;
     }
   </style>
+
 </head>
+
 <body>
 
-<!-- ═══ TOPBAR ═══ -->
-<div class="topbar">
-  <div class="topbar-brand">
-    <div class="brand-dot"></div>
-    Pipeline Monitor
+  <!-- MENU -->
+
+  <div class="navbar">
+    <div class="nav-item active" onclick="showTab('home', this)">Seja bem-vindo</div>
+    <div class="nav-item" onclick="showTab('details', this)">Detalhes</div>
   </div>
 
-  <div class="topbar-nav">
-    <button class="nav-btn active" onclick="showPage('home', this)">Overview</button>
-    <button class="nav-btn" onclick="showPage('details', this)">Detalhes</button>
-    <button class="nav-btn" onclick="showPage('logs', this)">Logs</button>
-  </div>
+  <!-- CONTEÚDO -->
 
-  <div class="topbar-meta">
-    <span class="status-live">LIVE</span>
-    <span id="clock">--:--:--</span>
+  <div class="container">
+
+```
+<!-- HOME -->
+<div id="home" class="tab active">
+  <div class="card">
+    <h1>🚀 Bem-vindo</h1>
+    <p>Este é o dashboard do projeto gerado pelo Jenkins.</p>
+    <p>Aqui você pode visualizar informações básicas do build.</p>
   </div>
 </div>
 
-<!-- ═══ HOME ═══ -->
-<div id="home" class="page active">
+<!-- DETALHES -->
+<div id="details" class="tab">
+  <div class="card">
+    <h1>📦 Detalhes do Projeto</h1>
 
-  <div class="page-header">
-    <div class="page-title">Overview do Pipeline</div>
-    <div class="page-subtitle">Última atualização: <span id="last-update">agora mesmo</span></div>
+    <div class="item">
+      <span class="label">Repositório:</span>
+      <span id="repo"></span>
+    </div>
+
+    <div class="item">
+      <span class="label">Branch:</span>
+      <span id="branch"></span>
+    </div>
+
+    <div class="item">
+      <span class="label">Commit:</span>
+      <span id="commit"></span>
+    </div>
+
   </div>
-
-  <!-- Stats -->
-  <div class="stats-grid">
-    <div class="stat-card blue">
-      <div class="stat-label">Total de Builds</div>
-      <div class="stat-value blue">142</div>
-      <div class="stat-sub">↑ +12 esta semana</div>
-    </div>
-    <div class="stat-card green">
-      <div class="stat-label">Sucesso</div>
-      <div class="stat-value green">94%</div>
-      <div class="stat-sub">134 de 142 builds</div>
-    </div>
-    <div class="stat-card yellow">
-      <div class="stat-label">Tempo Médio</div>
-      <div class="stat-value yellow">2m38s</div>
-      <div class="stat-sub">↓ 18s mais rápido</div>
-    </div>
-    <div class="stat-card red">
-      <div class="stat-label">Falhas</div>
-      <div class="stat-value red">8</div>
-      <div class="stat-sub">últimos 30 dias</div>
-    </div>
-  </div>
-
-  <div class="two-col">
-    <!-- Builds recentes -->
-    <div class="panel">
-      <div class="panel-header">
-        <span class="panel-title">Builds Recentes</span>
-        <span class="badge running">1 rodando</span>
-      </div>
-      <div class="panel-body">
-        <div class="build-list">
-
-          <div class="build-item">
-            <div class="build-status running"></div>
-            <div class="build-info">
-              <div class="build-id">#142</div>
-              <div class="build-branch">feature/refactor-api-gateway</div>
-              <div class="build-meta">cowboy · há 2 min</div>
-            </div>
-            <span class="badge running">running</span>
-          </div>
-
-          <div class="build-item">
-            <div class="build-status success"></div>
-            <div class="build-info">
-              <div class="build-id">#141</div>
-              <div class="build-branch">main</div>
-              <div class="build-meta">cowboy · há 1h</div>
-            </div>
-            <span class="badge success">passed</span>
-          </div>
-
-          <div class="build-item">
-            <div class="build-status success"></div>
-            <div class="build-info">
-              <div class="build-id">#140</div>
-              <div class="build-branch">fix/webhook-handler</div>
-              <div class="build-meta">cowboy · há 3h</div>
-            </div>
-            <span class="badge success">passed</span>
-          </div>
-
-          <div class="build-item">
-            <div class="build-status failed"></div>
-            <div class="build-info">
-              <div class="build-id">#139</div>
-              <div class="build-branch">feature/redis-queue</div>
-              <div class="build-meta">cowboy · há 5h</div>
-            </div>
-            <span class="badge failed">failed</span>
-          </div>
-
-          <div class="build-item">
-            <div class="build-status success"></div>
-            <div class="build-info">
-              <div class="build-id">#138</div>
-              <div class="build-branch">main</div>
-              <div class="build-meta">cowboy · ontem</div>
-            </div>
-            <span class="badge success">passed</span>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- Cobertura -->
-    <div class="panel">
-      <div class="panel-header">
-        <span class="panel-title">Cobertura de Testes</span>
-        <span class="tag">build #141</span>
-      </div>
-      <div class="panel-body">
-        <div class="progress-row">
-          <div class="progress-label">Unit Tests</div>
-          <div class="progress-track">
-            <div class="progress-fill" style="width:87%; background: var(--accent2);"></div>
-          </div>
-          <div class="progress-pct">87%</div>
-        </div>
-        <div class="progress-row">
-          <div class="progress-label">Integration</div>
-          <div class="progress-track">
-            <div class="progress-fill" style="width:72%; background: var(--accent);"></div>
-          </div>
-          <div class="progress-pct">72%</div>
-        </div>
-        <div class="progress-row">
-          <div class="progress-label">E2E</div>
-          <div class="progress-track">
-            <div class="progress-fill" style="width:54%; background: var(--accent3);"></div>
-          </div>
-          <div class="progress-pct">54%</div>
-        </div>
-        <div class="progress-row">
-          <div class="progress-label">Linting</div>
-          <div class="progress-track">
-            <div class="progress-fill" style="width:100%; background: var(--accent2);"></div>
-          </div>
-          <div class="progress-pct">100%</div>
-        </div>
-
-        <div style="margin-top:20px;">
-          <div class="code-block">
-            <div class="code-line"><span class="code-ln">1</span><span><span class="cm">// last test run output</span></span></div>
-            <div class="code-line"><span class="code-ln">2</span><span><span class="kw">npm</span> <span class="fn">run</span> <span class="str">test:ci</span></span></div>
-            <div class="code-line"><span class="code-ln">3</span><span style="color:var(--accent2)">✓ 214 tests passed</span></div>
-            <div class="code-line"><span class="code-ln">4</span><span style="color:var(--danger)">✗ 3 tests failed</span></div>
-            <div class="code-line"><span class="code-ln">5</span><span class="cm">  └─ timeout: /api/v2/queue</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
 </div>
-
-<!-- ═══ DETALHES ═══ -->
-<div id="details" class="page">
-
-  <div class="page-header">
-    <div class="page-title">Detalhes do Projeto</div>
-    <div class="page-subtitle">Informações do repositório e ambiente de build</div>
-  </div>
-
-  <div class="detail-grid">
-
-    <div class="panel">
-      <div class="panel-header"><span class="panel-title">Repositório</span></div>
-      <div class="panel-body">
-        <div class="info-row">
-          <span class="info-key">Repo</span>
-          <span class="info-val accent" id="repo">grupo-opt/dbxphone</span>
-        </div>
-        <div class="info-row">
-          <span class="info-key">Branch</span>
-          <span class="info-val green" id="branch">main</span>
-        </div>
-        <div class="info-row">
-          <span class="info-key">Commit</span>
-          <span class="info-val" id="commit">a3f7c2d</span>
-        </div>
-        <div class="info-row">
-          <span class="info-key">Autor</span>
-          <span class="info-val">cowboy &lt;dev@grupoopt.com.br&gt;</span>
-        </div>
-        <div class="info-row">
-          <span class="info-key">Mensagem</span>
-          <span class="info-val">fix: improve webhook retry logic</span>
-        </div>
-        <div class="info-row">
-          <span class="info-key">Tag</span>
-          <span class="info-val"><span class="tag">v1.4.2</span></span>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-header"><span class="panel-title">Ambiente</span></div>
-      <div class="panel-body">
-        <div class="info-row">
-          <span class="info-key">Runner</span>
-          <span class="info-val">ubuntu-22.04</span>
-        </div>
-        <div class="info-row">
-          <span class="info-key">Node</span>
-          <span class="info-val green">v20.11.1 LTS</span>
-        </div>
-        <div class="info-row">
-          <span class="info-key">NPM</span>
-          <span class="info-val">10.2.4</span>
-        </div>
-        <div class="info-row">
-          <span class="info-key">Docker</span>
-          <span class="info-val">26.0.1</span>
-        </div>
-        <div class="info-row">
-          <span class="info-key">PM2</span>
-          <span class="info-val green">5.3.1 · online</span>
-        </div>
-        <div class="info-row">
-          <span class="info-key">Deploy via</span>
-          <span class="info-val">GitHub Actions → SSH/SCP</span>
-        </div>
-      </div>
-    </div>
+```
 
   </div>
 
-  <!-- Pipeline stages -->
-  <div class="panel">
-    <div class="panel-header">
-      <span class="panel-title">Stages do Pipeline — Build #142</span>
-      <span class="badge running">em progresso</span>
-    </div>
-    <div class="panel-body">
-      <div class="timeline">
+  <script>
+    function showTab(tabId, element) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
 
-        <div class="tl-item">
-          <div class="tl-left">
-            <div class="tl-dot done"></div>
-            <div class="tl-line"></div>
-          </div>
-          <div class="tl-content">
-            <div class="tl-title">Checkout</div>
-            <div class="tl-sub">concluído em 4s · commit a3f7c2d</div>
-          </div>
-        </div>
+      document.getElementById(tabId).classList.add('active');
+      element.classList.add('active');
+    }
 
-        <div class="tl-item">
-          <div class="tl-left">
-            <div class="tl-dot done"></div>
-            <div class="tl-line"></div>
-          </div>
-          <div class="tl-content">
-            <div class="tl-title">Install Dependencies</div>
-            <div class="tl-sub">concluído em 38s · npm ci</div>
-          </div>
-        </div>
+    // carregar info.json
+    fetch('info.json')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('repo').textContent = data.repo;
+        document.getElementById('branch').textContent = data.branch;
+        document.getElementById('commit').textContent = data.commit;
+      })
+      .catch(err => console.error(err));
+  </script>
 
-        <div class="tl-item">
-          <div class="tl-left">
-            <div class="tl-dot done"></div>
-            <div class="tl-line"></div>
-          </div>
-          <div class="tl-content">
-            <div class="tl-title">Build TypeScript</div>
-            <div class="tl-sub">concluído em 22s · tsc --build</div>
-          </div>
-        </div>
-
-        <div class="tl-item">
-          <div class="tl-left">
-            <div class="tl-dot run"></div>
-            <div class="tl-line"></div>
-          </div>
-          <div class="tl-content">
-            <div class="tl-title" style="color:var(--accent3)">Run Tests</div>
-            <div class="tl-sub" style="color:var(--accent3)">em execução · ~1m30s estimado</div>
-          </div>
-        </div>
-
-        <div class="tl-item">
-          <div class="tl-left">
-            <div class="tl-dot wait"></div>
-            <div class="tl-line"></div>
-          </div>
-          <div class="tl-content">
-            <div class="tl-title" style="color:var(--muted)">Deploy via SSH</div>
-            <div class="tl-sub">aguardando testes</div>
-          </div>
-        </div>
-
-        <div class="tl-item">
-          <div class="tl-left">
-            <div class="tl-dot wait"></div>
-          </div>
-          <div class="tl-content">
-            <div class="tl-title" style="color:var(--muted)">PM2 Restart</div>
-            <div class="tl-sub">aguardando deploy</div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- ═══ LOGS ═══ -->
-<div id="logs" class="page">
-
-  <div class="page-header">
-    <div class="page-title">Logs do Build</div>
-    <div class="page-subtitle">Build #142 · feature/refactor-api-gateway · em execução</div>
-  </div>
-
-  <div class="log-terminal">
-    <div class="log-titlebar">
-      <div class="win-btn red"></div>
-      <div class="win-btn yellow"></div>
-      <div class="win-btn green"></div>
-      <span class="log-titlebar-text">pipeline · build #142 · ubuntu-22.04</span>
-    </div>
-    <div class="log-body" id="log-body">
-
-      <div class="log-line"><span class="log-ts">10:42:01</span><span class="log-dim">══════════════════════════════════════</span></div>
-      <div class="log-line"><span class="log-ts">10:42:01</span><span class="log-inf">🚀 Pipeline iniciado — Build #142</span></div>
-      <div class="log-line"><span class="log-ts">10:42:01</span><span class="log-dim">══════════════════════════════════════</span></div>
-      <div class="log-line"><span class="log-ts">10:42:01</span><span class="log-inf">Runner: ubuntu-22.04 / Node 20.11.1</span></div>
-      <div class="log-line"><span class="log-ts">10:42:02</span><span class="log-inf">Triggered by: push → feature/refactor-api-gateway</span></div>
-      <div class="log-line"><span class="log-ts">10:42:02</span><span class="log-inf">&nbsp;</span></div>
-      <div class="log-line"><span class="log-ts">10:42:02</span><span class="log-ok">✔ [CHECKOUT] Repositório clonado com sucesso</span></div>
-      <div class="log-line"><span class="log-ts">10:42:03</span><span class="log-ok">✔ [CHECKOUT] Commit: a3f7c2d — fix: improve webhook retry logic</span></div>
-      <div class="log-line"><span class="log-ts">10:42:06</span><span class="log-inf">&nbsp;</span></div>
-      <div class="log-line"><span class="log-ts">10:42:06</span><span class="log-inf">▶ [INSTALL] Executando npm ci...</span></div>
-      <div class="log-line"><span class="log-ts">10:42:08</span><span class="log-dim">  added 312 packages in 32s</span></div>
-      <div class="log-line"><span class="log-ts">10:42:44</span><span class="log-ok">✔ [INSTALL] Dependências instaladas (312 pacotes)</span></div>
-      <div class="log-line"><span class="log-ts">10:42:44</span><span class="log-inf">&nbsp;</span></div>
-      <div class="log-line"><span class="log-ts">10:42:44</span><span class="log-inf">▶ [BUILD] Executando tsc --build...</span></div>
-      <div class="log-line"><span class="log-ts">10:42:55</span><span class="log-dim">  src/index.ts → dist/index.js</span></div>
-      <div class="log-line"><span class="log-ts">10:42:57</span><span class="log-dim">  src/services/queue.ts → dist/services/queue.js</span></div>
-      <div class="log-line"><span class="log-ts">10:43:06</span><span class="log-ok">✔ [BUILD] TypeScript compilado em 22s (0 erros)</span></div>
-      <div class="log-line"><span class="log-ts">10:43:06</span><span class="log-inf">&nbsp;</span></div>
-      <div class="log-line"><span class="log-ts">10:43:06</span><span class="log-inf">▶ [TEST] Executando npm run test:ci...</span></div>
-      <div class="log-line"><span class="log-ts">10:43:08</span><span class="log-dim">  PASS src/services/webhook.test.ts</span></div>
-      <div class="log-line"><span class="log-ts">10:43:09</span><span class="log-dim">  PASS src/services/rabbitmq.test.ts</span></div>
-      <div class="log-line"><span class="log-ts">10:43:10</span><span class="log-warn">  ⚠ WARN src/api/queue.test.ts — timeout 200ms</span></div>
-      <div class="log-line"><span class="log-ts">10:43:11</span><span class="log-dim">  PASS src/utils/retry.test.ts</span></div>
-      <div class="log-line" id="log-cursor"><span class="log-ts">10:43:12</span><span class="log-warn">  ⌛ Running remaining 47 suites...</span></div>
-
-    </div>
-  </div>
-
-</div>
-
-<script>
-  // ── Tab navigation ──
-  function showPage(id, btn) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    btn.classList.add('active');
-  }
-
-  // ── Clock ──
-  function updateClock() {
-    const now = new Date();
-    document.getElementById('clock').textContent = now.toLocaleTimeString('pt-BR');
-  }
-  updateClock();
-  setInterval(updateClock, 1000);
-
-  // ── Load info.json ──
-  fetch('info.json')
-    .then(r => r.json())
-    .then(data => {
-      if (data.repo)   document.getElementById('repo').textContent   = data.repo;
-      if (data.branch) document.getElementById('branch').textContent = data.branch;
-      if (data.commit) document.getElementById('commit').textContent = data.commit;
-    })
-    .catch(() => {/* usa dados fake já definidos no HTML */});
-
-  // ── Last update ──
-  document.getElementById('last-update').textContent = new Date().toLocaleString('pt-BR');
-</script>
 </body>
 </html>
