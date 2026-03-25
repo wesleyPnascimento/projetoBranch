@@ -1,3 +1,16 @@
+def createDeployRemote() {
+    def remote = [: ]
+    remote.name = "${env.REMOTE_NAME}"
+    remote.host = "${env.REMOTE_HOST}"
+    remote.user = "${env.REMOTE_USER}"
+    remote.identityFile = "/var/lib/jenkins/.ssh/id_rsa"
+    remote.allowAnyHosts = true
+    remote.timeoutSec = 10
+    remote.retryCount = 3
+    remote.retryWaitSec = 3
+    return remote
+}
+
 pipeline {
     agent any
 
@@ -5,7 +18,6 @@ pipeline {
         REPO_NAME    = "projetoBranch"
         REMOTE_USER  = "root"
         REMOTE_DIR   = "/var/www/projetoBranch"
-        SSH_KEY_ACCESS = "~/.ssh/id_rsa"
     }
 
     stages {
@@ -64,19 +76,41 @@ pipeline {
         }
 
         // ── 4. Deploy: enviar arquivos para o servidor remoto ───────────────
+            // stage('Deploy') {
+            //     steps {
+            //         script {
+            //             def sshOpts = "-i ${env.SSH_KEY_ACCESS} -o StrictHostKeyChecking=no"
+            //             def target  = "${env.REMOTE_USER}@${env.REMOTE_HOST}"
+
+            //             // Garante que o diretório existe no servidor remoto
+            //             // sh "ssh ${sshOpts} ${target} 'mkdir -p ${env.REMOTE_DIR}'"
+
+            //             withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key-prod', keyFileVariable: 'SSH_KEY')]) {
+            //                 sh """
+            //                     ssh -i $SSH_KEY -o StrictHostKeyChecking=no root@${env.REMOTE_HOST} 'mkdir -p /var/www/projetoBranch'
+            //                 """
+            //             }
+
+            //             // Copia index.html e info.json
+            //             sh "scp ${sshOpts} index.html info.json ${target}:${env.REMOTE_DIR}/"
+
+            //             echo ">>> Deploy concluído em ${env.REMOTE_HOST}:${env.REMOTE_DIR}"
+            //         }
+            //     }
+        // }
         stage('Deploy') {
             steps {
                 script {
-                    def sshOpts = "-i ${env.SSH_KEY_ACCESS} -o StrictHostKeyChecking=no"
-                    def target  = "${env.REMOTE_USER}@${env.REMOTE_HOST}"
+                    def remote = createDeployRemote()
+                    sshPut remote: remote, 
+                        from: 'index.html', 
+                        into: "${env.REMOTE_DIR}/index.html"
 
-                    // Garante que o diretório existe no servidor remoto
-                    sh "ssh ${sshOpts} ${target} 'mkdir -p ${env.REMOTE_DIR}'"
+                    sshPut remote: remote, 
+                        from: 'info.json', 
+                        into: "${env.REMOTE_DIR}/info.json"
 
-                    // Copia index.html e info.json
-                    sh "scp ${sshOpts} index.html info.json ${target}:${env.REMOTE_DIR}/"
-
-                    echo ">>> Deploy concluído em ${env.REMOTE_HOST}:${env.REMOTE_DIR}"
+                    echo ">>> Deploy concluído em ${remote.host}:${env.REMOTE_DIR}"
                 }
             }
         }
